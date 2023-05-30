@@ -96,19 +96,6 @@ class sudoku {
                 col.Remove(cnum < 10 ? cnum : cnum-10);
             }
             if (block.Count != 0 || line.Count != 0 || col.Count != 0) {
-                Console.WriteLine("\nblock");
-                foreach (var item in block) {
-                    Console.Write(" " + item);
-                }
-                Console.WriteLine("\nline");
-                foreach (var item in line) {
-                    Console.Write(" " + item);
-                }
-                Console.WriteLine("\ncol");
-                foreach (var item in col) {
-                    Console.Write(" " + item);
-                }
-                Console.WriteLine("");
                 return false;
             }
         }
@@ -167,12 +154,26 @@ class sudoku {
             val = k.Key.ToString();
             if (val.Count() == 2 && val[1] > '0' && val[1] <= '9') {
                 int tmp = int.Parse("" + val[1]);
-                if (i == 0)
+                if (i == 0) {
                     i = tmp;
-                else if (j == 0)
+                    Console.Write(" ");
+                    continue;
+                } else if (j == 0) {
                     j = tmp;
-                else
+                    Console.Write(" ");
+                    continue;
+                } else {
                     num = tmp;
+                    Console.Write("\n");
+                }
+            } else if (val == "Backspace") {
+                Console.Write("\b\b \b");
+                if (j != 0) {
+                    j = 0;
+                } else if (i != 0) {
+                    i = 0;
+                }
+                continue;
             } else if (val == "Q") {
                 Console.Write("\bsolution\n");
                 printGrid(filledGrid);
@@ -181,17 +182,12 @@ class sudoku {
                 Console.Write("\b \b");
                 continue;
             }
-            if (i == 0 || j == 0 || num == 0) {
-                Console.Write(" ");
-                continue;
-            }
             if (grid[i-1][j-1] != 0 && grid[i-1][j-1] < 10) {
-                Console.WriteLine("\nnope, that's a predefined number.");
+                Console.WriteLine("nope, that's a predefined number.");
                 i = j = num = 0;
                 continue;
             }
             grid[i-1][j-1] = num+10;
-            Console.WriteLine("");
             printGrid(grid);
             i = j = num = 0;
             if (checkWin()) {
