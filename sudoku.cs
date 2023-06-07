@@ -76,9 +76,57 @@ class sudoku {
             grid[i][j] = 0;
         }
     }
-    
-    static bool checkGrid() {
-        return true;
+
+    static int checkValid(int i, int[] pos, List<int> num) {
+        int solut = 0, p = pos[0];
+        var numcpy = new List<int> (num);
+        for (int ind = 0; ind < 9; ind++) {
+            if (ind != i) {
+                numcpy.Remove(grid[ind][p]);
+            }
+            if ((i/3)*3 + ind/3 != i || (p/3)*3 + ind%3 != p) {
+                numcpy.Remove(grid[(i/3)*3 + ind/3][(p/3)*3 + ind%3]);
+            }
+        }
+        do {
+            if (numcpy.Count == 0) {
+                return solut;
+            }
+            var numcpy2 = new List<int> (num);
+            grid[i][p] = numcpy[0];
+            numcpy2.Remove(numcpy[0]);
+            numcpy.RemoveAt(0);
+            if (pos.Length == 1) {
+                if (i == 8) {
+                    grid[i][p] = 0;
+                    return 1;
+                }
+                solut += checkGrid(i+1);
+            } else {
+                solut += checkValid(i, pos[1..], numcpy2);
+            }
+            grid[i][p] = 0;
+        } while (solut < 2);
+        return solut;
+    }
+
+    static int checkGrid(int i) {
+        var pos = new List<int> {0, 1, 2, 3, 4, 5, 6, 7, 8};
+        var num = new List<int> {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        for (int ind = 0; ind < 9; ind++) {
+            int n = grid[i][ind];
+            if (n != 0) {
+                pos.Remove(ind);
+                num.Remove(n);
+            }
+        }
+        if (pos.Count == 0) {
+            if (i == 8) {
+                return 1;
+            }
+            return checkGrid(i+1);
+        }
+        return checkValid(i, pos.ToArray(), num);
     }
 
     static bool checkWin() {
@@ -119,7 +167,7 @@ class sudoku {
         do {
             rng = new Random(rng.Next());
             emptyGrid(rng);
-            if (checkGrid()) {
+            if (checkGrid(0) < 2) {
                 return;
             }
         } while (true);
@@ -134,7 +182,8 @@ class sudoku {
             Console.Write("|");
             for (int j = 0; j < 9; j++) {
                 num = gridToPrint[i][j];
-                Console.Write(" " + (num == 0 ? "_" : (num < 10 ? num : num-10).ToString()));
+                num = num < 10 ? num : num-10;
+                Console.Write(" " + (num == 0 ? "_" : num.ToString()));
                 if (j % 3 == 2)
                     Console.Write(" |");
             }
@@ -166,6 +215,9 @@ class sudoku {
                     num = tmp;
                     Console.Write("\n");
                 }
+            } else if (i != 0 && j != 0 && ((val.Count() == 2 && val[1] == '0') || val[0] == 'X')) {
+                num = 0;
+                Console.Write("\n");
             } else if (val == "Backspace") {
                 Console.Write("\b\b \b");
                 if (j != 0) {
